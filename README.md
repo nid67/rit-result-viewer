@@ -14,8 +14,8 @@ A Chrome extension and Progressive Web App (PWA) that lets RIT (Rishihood Instit
 
 Choose your preferred way to use:
 
-### Option 1: Chrome Extension (Desktop)
-Best for desktop users who want a toolbar shortcut.
+### Option 1: Chrome Extension (Desktop) ✅ **RECOMMENDED**
+Best for desktop users. **No CORS issues - works perfectly!**
 
 1. Clone this repository
 2. Go to `chrome://extensions/`
@@ -25,9 +25,9 @@ Best for desktop users who want a toolbar shortcut.
 6. Click the extension icon → enter credentials → done!
 
 ### Option 2: Progressive Web App (PWA) (Mobile + Desktop)
-**Recommended** - Works on all devices, installable as homescreen app.
+Works on all devices, installable as homescreen app. **Note: May have CORS restrictions depending on your network.**
 
-Simply visit: `https://nid67.github.io/rit-result-viewer/pwa/`
+Simply visit: `https://nid67.github.io/rit-result-viewer/`
 
 Then:
 - **Chrome/Edge:** Menu → "Install app"
@@ -48,6 +48,7 @@ Then:
 | Installable homescreen app | ❌ | ✅ |
 | No extension approval needed | ❌ | ✅ |
 | Toolbar access | ✅ | ❌ |
+| **CORS-free (works everywhere)** | ✅ | ⚠️ |
 
 ---
 
@@ -176,6 +177,12 @@ A: As needed. If the RIT IMS login page structure changes, we'll update the toke
 - Check your internet connection
 - RIT servers might be temporarily down
 - Wait a few moments and try again
+
+### "Failed to fetch"
+- This is a **CORS (Cross-Origin) error**
+- The browser blocked the request because the PWA is on GitHub Pages
+- **Solution:** Use the **Chrome Extension instead** - it has full permissions
+- Alternatively, if RIT enables CORS headers, this will be fixed automatically
 
 ### Extension not showing results
 - Refresh the extension: Go to `chrome://extensions/` → click refresh icon

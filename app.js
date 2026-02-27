@@ -7,6 +7,7 @@ const passwordInput = document.getElementById('password');
 const IMS_BASE_URL = 'https://ims.ritchennai.edu.in';
 const LOGIN_URL = `${IMS_BASE_URL}/login`;
 const RESULT_PAGE_URL = `${IMS_BASE_URL}/admin/grade/student/mark/report`;
+const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/'; // CORS proxy for web version
 
 // Restore saved registration number if available
 window.addEventListener('load', () => {
@@ -146,7 +147,14 @@ loginForm.addEventListener('submit', async (e) => {
   } catch (error) {
     console.error('Login error:', error);
     console.error('Error stack:', error.stack);
-    showStatus(`❌ ${error.message}`, 'error');
+    
+    // Check if it's a CORS error
+    let errorMsg = error.message;
+    if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
+      errorMsg = 'CORS Error: The browser blocked the request. Try using the Chrome Extension instead, or enable CORS support on your server. For web version, use the Chrome Extension which has full permissions.';
+    }
+    
+    showStatus(`❌ ${errorMsg}`, 'error');
     loginBtn.disabled = false;
   }
 });
