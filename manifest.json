@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "RIT Direct Result Viewer",
+  "version": "1.0",
+  "description": "Direct login to RIT IMS portal and jump to results page",
+  "permissions": [
+    "tabs",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://ims.ritchennai.edu.in/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "RIT Direct Result Viewer"
+  }
+}
