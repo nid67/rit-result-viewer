@@ -5,9 +5,19 @@ const regNumberInput = document.getElementById('regNumber');
 const passwordInput = document.getElementById('password');
 
 const IMS_BASE_URL = 'https://ims.ritchennai.edu.in';
-const LOGIN_URL = `${IMS_BASE_URL}/login`;
 const RESULT_PAGE_URL = `${IMS_BASE_URL}/admin/grade/student/mark/report`;
-const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/'; // CORS proxy for web version
+
+// Detect if running on Vercel, GitHub Pages, or locally
+const isVercel = window.location.hostname.includes('vercel.app');
+const isGitHubPages = window.location.hostname.includes('github.io');
+const isExtension = typeof chrome !== 'undefined' && chrome.storage;
+
+console.log('Running on:', {
+  hostname: window.location.hostname,
+  isVercel,
+  isGitHubPages,
+  isExtension
+});
 
 // Restore saved registration number if available
 window.addEventListener('load', () => {
@@ -18,33 +28,72 @@ window.addEventListener('load', () => {
   }
 });
 
-loginForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const regNumber = regNumberInput.value.trim();
-  const password = passwordInput.value;
-  
-  // Validation
-  if (!regNumber || !password) {
-    showStatus('Please enter both registration number and password', 'error');
-    return;
+// Login using Vercel API endpoints (no CORS issues)
+async function loginWithAPI(regNumber, password) {
+  try {
+    showStatus('Fetching CSRF token...', 'loading');
+    
+    // Step 1: Get CSRF token from API
+    const tokenResponse = await fetch('/api/token', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (!tokenResponse.ok) {
+      const error = await tokenResponse.json();
+      throw new Error(error.error || `Failed to fetch token: HTTP ${tokenResponse.status}`);
+    }
+    
+    const tokenData = await tokenResponse.json();
+    const csrfToken = tokenData.token;
+    console.log('CSRF Token obtained from API');
+    
+    showStatus('Authenticating...', 'loading');
+    
+    // Step 2: Submit login via API
+    const loginResponse = await fetch('/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        token: csrfToken,
+        email: regNumber,
+        password: password
+      })
+    });
+    
+    const loginData = await loginResponse.json();
+    
+    if (!loginResponse.ok) {
+      throw new Error(loginData.error || `Login failed: HTTP ${loginResponse.status}`);
+    }
+    
+    if (loginData.authenticated) {
+      console.log('Login successful!');
+      showStatus('✓ Login successful! Redirecting...', 'success');
+      
+      // Redirect to results page
+      setTimeout(() => {
+        window.location.href = loginData.redirectUrl;
+      }, 1000);
+    } else {
+      throw new Error('Authentication failed');
+    }
+    
+  } catch (error) {
+    throw error;
   }
-  
-  if (regNumber.length !== 13 || !/^\d+$/.test(regNumber)) {
-    showStatus('Registration number must be exactly 13 digits', 'error');
-    return;
-  }
-  
-  // Save registration number for convenience
-  localStorage.setItem('savedRegNumber', regNumber);
-  
-  // Disable button during login
-  loginBtn.disabled = true;
+}
+
+// Login using direct fetch (for Chrome Extension and direct usage)
+async function loginDirect(regNumber, password) {
+  const LOGIN_URL = `${IMS_BASE_URL}/login`;
   
   try {
-    showStatus('Fetching login page...', 'loading');
-    console.log('Starting login process for reg number:', regNumber);
-    
     // Step 1: Fetch the login page to get CSRF token
     const loginPageResponse = await fetch(LOGIN_URL, {
       method: 'GET',
@@ -105,7 +154,7 @@ loginForm.addEventListener('submit', async (e) => {
     loginFormData.append('email', regNumber);
     loginFormData.append('password', password);
     
-    console.log('Submitting login request to:', LOGIN_URL);
+    console.log('Submitting login request');
     
     const loginResponse = await fetch(LOGIN_URL, {
       method: 'POST',
@@ -137,6 +186,7 @@ loginForm.addEventListener('submit', async (e) => {
     }
     
     console.log('Login successful!');
+    
     showStatus('✓ Login successful! Redirecting...', 'success');
     
     // Step 5: Redirect to results page
@@ -145,13 +195,59 @@ loginForm.addEventListener('submit', async (e) => {
     }, 1000);
     
   } catch (error) {
+    throw error;
+  }
+}
+
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const regNumber = regNumberInput.value.trim();
+  const password = passwordInput.value;
+  
+  // Validation
+  if (!regNumber || !password) {
+    showStatus('Please enter both registration number and password', 'error');
+    return;
+  }
+  
+  if (regNumber.length !== 13 || !/^\d+$/.test(regNumber)) {
+    showStatus('Registration number must be exactly 13 digits', 'error');
+    return;
+  }
+  
+  // Save registration number for convenience
+  localStorage.setItem('savedRegNumber', regNumber);
+  
+  // Disable button during login
+  loginBtn.disabled = true;
+  
+  try {
+    showStatus('Starting login...', 'loading');
+    console.log('Starting login process for reg number:', regNumber);
+    
+    // Choose login method based on deployment platform
+    if (isVercel) {
+      console.log('Using Vercel API (no CORS issues)');
+      await loginWithAPI(regNumber, password);
+    } else {
+      console.log('Using direct fetch (Extension or local)');
+      await loginDirect(regNumber, password);
+    }
+    
+  } catch (error) {
     console.error('Login error:', error);
     console.error('Error stack:', error.stack);
     
-    // Check if it's a CORS error
     let errorMsg = error.message;
-    if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
-      errorMsg = 'CORS Error: The browser blocked the request. Try using the Chrome Extension instead, or enable CORS support on your server. For web version, use the Chrome Extension which has full permissions.';
+    
+    // Provide helpful error messages
+    if (error.message.includes('Failed to fetch')) {
+      if (isGitHubPages) {
+        errorMsg = 'CORS Error on GitHub Pages. Deploy to Vercel for full functionality, or use the Chrome Extension!';
+      } else {
+        errorMsg = 'Network error. Check your connection or use the Chrome Extension.';
+      }
     }
     
     showStatus(`❌ ${errorMsg}`, 'error');
