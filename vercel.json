@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "echo 'Skipping build - static site'",
+  "outputDirectory": null,
+  "framework": null
+}
