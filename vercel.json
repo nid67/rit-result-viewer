@@ -1,6 +1,8 @@
 {
-  "buildCommand": "echo 'No build needed'",
+  "buildCommand": "echo 'Static site with serverless functions'",
+  "outputDirectory": ".",
   "public": true,
+  "framework": "other",
   "rewrites": [
     {
       "source": "/api/:path*",
