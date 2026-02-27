@@ -1,277 +1,137 @@
-# RIT Direct Result Viewer 🎓
+# 🎓 RIT Direct Result Viewer
 
-> **Fast, Direct Access to RIT Results - Skip the Slow Homepage!**
+A Chrome extension for instant access to RIT IMS portal results - skip the homepage and jump straight to your marks!
 
-A Chrome extension and Progressive Web App (PWA) that lets RIT (Rajalakshmi Institute of Technology) students login directly and jump straight to their results page, completely bypassing the slow homepage.
+## Features
 
-![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
-![Type: Chrome Extension + PWA](https://img.shields.io/badge/Type-Extension%20%2B%20PWA-green)
-![Status: Active](https://img.shields.io/badge/Status-Active-brightgreen)
+✨ **Fast Direct Login** - Logs in directly to the RIT IMS portal without the slow homepage
+✨ **Auto Results Navigation** - Opens the marks/results page in a new tab automatically
+✨ **Secure CSRF Handling** - Properly fetches and uses CSRF tokens for secure authentication
+✨ **Credential Storage** - Remembers your registration number for convenience
+✨ **Error Handling** - Clear error messages if login fails
+✨ **Beautiful UI** - Modern, user-friendly popup interface
 
----
+## Installation
 
-## 🚀 Quick Start
+### Step 1: Download the Extension
+- The extension files are already in this folder:
+  - `manifest.json`
+  - `popup.html`
+  - `popup.js`
 
-Choose your preferred way to use:
-
-### Option 1: Chrome Extension (Desktop) ✅ **RECOMMENDED**
-Best for desktop users. **No CORS issues - works perfectly!**
-
-1. Clone this repository
-2. Go to `chrome://extensions/`
-3. Enable **Developer mode** (top right)
+### Step 2: Load into Chrome
+1. Open **Google Chrome**
+2. Go to **chrome://extensions/**
+3. Enable **Developer mode** (toggle in top-right corner)
 4. Click **Load unpacked**
-5. Select the root folder of this repo
-6. Click the extension icon → enter credentials → done!
+5. Select this folder (`rit-direct-result-viewer`)
+6. The extension will appear in your toolbar
 
-### Option 2: Progressive Web App (PWA) (Mobile + Desktop)
-Works on all devices, installable as homescreen app. **Note: May have CORS restrictions depending on your network.**
+### Step 3: Use the Extension
+1. Click the extension icon in your Chrome toolbar
+2. Enter your **13-digit registration number** (without spaces)
+3. Enter your **password**
+4. Click **Login & View Results**
+5. The extension will:
+   - Fetch the login page and extract the CSRF token
+   - Authenticate you securely
+   - Open the results page in a new tab
 
-Simply visit: `https://nid67.github.io/rit-result-viewer/`
-
-Then:
-- **Chrome/Edge:** Menu → "Install app"
-- **Safari (iOS):** Share → "Add to Home Screen"
-- **Other browsers:** Bookmark for quick access
-
----
-
-## ✨ Features
-
-| Feature | Extension | PWA |
-|---------|-----------|-----|
-| Direct result access | ✅ | ✅ |
-| CSRF token auto-handling | ✅ | ✅ |
-| Remember registration number | ✅ | ✅ |
-| Fast & lightweight | ✅ | ✅ |
-| Mobile support | ❌ | ✅ |
-| Installable homescreen app | ❌ | ✅ |
-| No extension approval needed | ❌ | ✅ |
-| Toolbar access | ✅ | ❌ |
-| **CORS-free (works everywhere)** | ✅ | ⚠️ |
-
----
-
-## 🔐 How It Works
-
-```
-User enters credentials
-        ↓
-App fetches login page
-        ↓
-Extracts CSRF token from HTML
-        ↓
-Submits login form with token
-        ↓
-Verifies successful authentication
-        ↓
-Redirects to results page
-```
+## How It Works
 
 ### Security
+- Uses `credentials: 'include'` to maintain session cookies
+- Extracts and includes CSRF `_token` in login request
+- Makes requests directly to the server (no third-party services)
+- Your credentials are NOT stored; only your registration number is cached locally
 
-✅ Credentials sent **directly to official RIT IMS portal**  
-✅ **CSRF token** automatically handled  
-✅ Uses **HTTPS only**  
-✅ Registration number saved only in **browser storage** (never on servers)  
-✅ **Password never stored** anywhere  
+### Authentication Flow
+1. **Fetch Login Page** - Gets the login form and extracts the CSRF token
+2. **Extract Token** - Finds the `_token` field in the HTML
+3. **POST Login** - Sends credentials + token to the server
+4. **Verify Success** - Checks if authentication succeeded
+5. **Open Results** - Navigates to the marks report page
 
----
+## Troubleshooting
 
-## 📱 Usage
+### "Invalid credentials" error
+- Double-check your registration number (13 digits)
+- Verify your password is correct
+- Make sure you're using your IMS login credentials
 
-### Via Chrome Extension
+### "Could not find CSRF token" error
+- The IMS login page structure may have changed
+- Try accessing the portal directly at: https://ims.ritchennai.edu.in/
+- Report the issue if the page looks different
 
-1. Click the extension icon in the toolbar
-2. Enter your **13-digit registration number**
-3. Enter your **password**
-4. Click **"Login & View Results"**
-5. Results page opens in a new tab
+### Extension not appearing
+- Make sure Developer mode is enabled (chrome://extensions/)
+- Refresh the page if you just added it
+- Try clicking the puzzle icon in the top-right to pin the extension
 
-### Via PWA
+### Console shows errors
+- Right-click the extension → **Inspect popup**
+- Go to **Console** tab
+- Check for any JavaScript errors
 
-1. Visit: https://nid67.github.io/rit-result-viewer/pwa/
-2. Install as homescreen app (recommended)
-3. Enter your credentials
-4. Click **"Login & View Results"**
-5. Redirected to results page in the same window
-
----
-
-## 📂 Project Structure
+## Files Included
 
 ```
-rit-result-viewer/
-├── manifest.json              # Chrome Extension manifest (V3)
-├── popup.html                 # Extension popup UI
-├── popup.js                   # Extension login logic
-├── README.md                  # This file
-│
-└── pwa/                       # Progressive Web App
-    ├── index.html             # PWA page
-    ├── app.js                 # PWA login logic
-    ├── styles.css             # Styling
-    ├── manifest.json          # PWA manifest
-    └── README.md              # PWA documentation
+rit-direct-result-viewer/
+├── manifest.json      # Extension configuration (Manifest V3)
+├── popup.html         # Login form UI
+├── popup.js           # Login logic & CSRF token handling
+└── README.md          # This file
 ```
 
----
+## File Descriptions
 
-## 🛠️ Technical Stack
+### manifest.json
+- Defines extension metadata and permissions
+- Specifies popup.html as the default popup
+- Grants permissions for tabs, scripting, storage, and the IMS domain
 
-- **HTML5** - Semantic markup
-- **CSS3** - Responsive design with animations
-- **Vanilla JavaScript** - Zero dependencies
-- **Progressive Web App** - Installable & fast
-- **Manifest V3** - Modern Chrome extension standard
+### popup.html
+- Beautiful, responsive login form
+- Modern gradient design with animations
+- Input fields for registration number and password
+- Status messages for user feedback
 
-### Key Technologies
+### popup.js
+- Handles login flow with proper error handling
+- Extracts CSRF token from login page
+- Makes authenticated POST request
+- Opens results page on successful login
+- Stores registration number locally for convenience
 
-| Component | Tech |
-|-----------|------|
-| Token Extraction | Regex pattern matching |
-| CORS | Credentials included |
-| Form Submission | FormData API |
-| Storage | localStorage (PWA) / chrome.storage (Extension) |
-| Styling | CSS3 Flexbox & Gradient |
+## Permissions Used
 
----
+- **`tabs`** - To create and open the results page in a new tab
+- **`scripting`** - Basic extension functionality
+- **`storage`** - To remember your registration number locally
+- **`https://ims.ritchennai.edu.in/*`** - To access the IMS portal
 
-## ❓ FAQ
+## Data Privacy
 
-**Q: Is my password safe?**  
-A: Yes! Your password is never stored. It's sent directly to the official RIT IMS server over HTTPS with CSRF protection.
+✅ Your credentials are **NEVER stored**
+✅ Only your registration number is cached locally for convenience
+✅ All login requests go directly to the official IMS server
+✅ No data sent to third-party services
+✅ Session cookies managed by Chrome
 
-**Q: Will this work on mobile?**  
-A: Yes! Use the **PWA version** on mobile. Download it as a homescreen app for the best experience.
+## Updates & Support
 
-**Q: Does it work offline?**  
-A: No. You need internet to login. We intentionally skipped offline caching to keep the app lightweight.
+To update the extension:
+1. Go to chrome://extensions/
+2. Click the refresh icon on the extension
+3. You'll get the latest version
 
-**Q: Why does this exist?**  
-A: The RIT IMS homepage becomes extremely slow during result uploads when many students access it simultaneously. This app bypasses the homepage entirely.
+## Disclaimer
 
-**Q: Is this official?**  
-A: No. This is an unofficial student project. Use at your own risk and comply with RIT's terms of service.
-
-**Q: Can I use both extension and PWA?**  
-A: Yes! They're completely separate and can be used alongside each other.
-
-**Q: How often is the app updated?**  
-A: As needed. If the RIT IMS login page structure changes, we'll update the token extraction logic.
-
----
-
-## 🐛 Troubleshooting
-
-### "Could not find CSRF token"
-- The RIT IMS login page structure may have changed
-- Try using the official portal: https://ims.ritchennai.edu.in
-
-### "Invalid credentials"
-- Double-check your 13-digit registration number
-- Verify your password (check CAPS LOCK)
-- Try resetting your password on the official portal
-
-### "Failed to fetch login page"
-- Check your internet connection
-- RIT servers might be temporarily down
-- Wait a few moments and try again
-
-### "Failed to fetch"
-- This is a **CORS (Cross-Origin) error**
-- The browser blocked the request because the PWA is on GitHub Pages
-- **Solution:** Use the **Chrome Extension instead** - it has full permissions
-- Alternatively, if RIT enables CORS headers, this will be fixed automatically
-
-### Extension not showing results
-- Refresh the extension: Go to `chrome://extensions/` → click refresh icon
-- Clear browser cache and cookies
-- Try disabling and re-enabling the extension
-
-### PWA not installing
-- Make sure you're using Chrome, Edge, or Safari
-- Try using HTTPS (GitHub Pages provides this)
-- Check that your browser supports PWA installation
+This extension is designed to streamline your access to your marks. Use it responsibly and ensure you only access your own results. Respect RIT's terms of service.
 
 ---
 
-## 🌐 Browser Support
-
-| Browser | Extension | PWA |
-|---------|-----------|-----|
-| Chrome | ✅ Full | ✅ Full |
-| Edge | ✅ Full | ✅ Full |
-| Firefox | ❌ | ✅ |
-| Safari | ❌ | ✅ |
-| Opera | ❌ | ✅ |
-
----
-
-## 📝 License
-
-MIT License - Feel free to use, modify, and share.
-
-See [LICENSE](LICENSE) for details.
-
----
-
-## 🤝 Contributing
-
-Found a bug? Have a suggestion?
-
-1. Check if it's already reported in Issues
-2. Create a new Issue with details
-3. Feel free to submit Pull Requests
-
----
-
-## ⚠️ Disclaimer
-
-This tool is provided **"as-is"** without warranty. The author is not responsible for:
-- Loss of access to your account
-- Data loss or misuse of credentials
-- Violations of RIT's terms of service
-- Changes to the RIT IMS portal that break this tool
-
-**Always verify you're connecting to the official RIT IMS portal:** https://ims.ritchennai.edu.in
-
----
-
-## 🎓 For RIT Students
-
-This project is built **by students, for students**. It's designed to make your life easier during result season when the portal gets hammered with traffic.
-
-Stay ethical. Don't share credentials. Don't use this for anything other than accessing your own results.
-
----
-
-## 📧 Support
-
-- **Issues:** Use the GitHub Issues tab
-- **Questions:** Open a Discussion (if enabled)
-- **Security:** Please don't disclose security issues publicly; email privately first
-
----
-
-## 🎉 Made with ❤️ for RIT Students
-
-**Problems Solved:**
-- ⚡ Eliminates slow homepage loading
-- 🔒 Secure direct authentication
-- 📱 Works on all devices
-- 🚀 Instant results access
-
-**Live Links:**
-- 🌐 PWA: https://nid67.github.io/rit-result-viewer/pwa/
-- 📦 Extension: Load unpacked from this repo
-- 📚 Docs: Check individual README files
-
----
-
-### Version Info
-- **Current Version:** 1.0
-- **Last Updated:** February 2026
-- **Status:** Active & Maintained
-
-Happy result checking! 🎊
+**Version:** 1.0  
+**Last Updated:** February 2026  
+**License:** MIT
