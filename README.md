@@ -2,7 +2,7 @@
 
 > **Fast, Direct Access to RIT Results - Skip the Slow Homepage!**
 
-A Chrome extension and Progressive Web App (PWA) that lets RIT (Rishihood Institute of Technology) students login directly and jump straight to their results page, completely bypassing the slow homepage.
+A Chrome extension and Progressive Web App (PWA) that lets RIT (Rajalakshmi Institute of Technology) students login directly and jump straight to their results page, completely bypassing the slow homepage.
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Type: Chrome Extension + PWA](https://img.shields.io/badge/Type-Extension%20%2B%20PWA-green)
